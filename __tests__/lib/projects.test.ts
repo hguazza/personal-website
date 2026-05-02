@@ -3,7 +3,7 @@ import { projects } from '@/lib/projects'
 describe('projects data', () => {
   it('returns an array of projects', () => {
     expect(Array.isArray(projects)).toBe(true)
-    expect(projects.length).toBeGreaterThan(0)
+    expect(projects.length).toBe(6)
   })
 
   it('each project has required fields', () => {
