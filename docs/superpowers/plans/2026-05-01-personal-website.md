@@ -134,83 +134,57 @@ git commit -m "chore: initialize Next.js 14 project with Tailwind and Jest"
 
 ---
 
-### Task 2: Tailwind Theme & Global Styles
+### Task 2: Tailwind Theme & Global Styles (Tailwind v4)
+
+> **Note:** The project uses Next.js 16 + Tailwind v4. There is NO `tailwind.config.ts`.
+> Theme configuration is done entirely in CSS via `@theme` in `globals.css`.
+> Font variables (`--font-geist-sans`, `--font-geist-mono`) are already wired up in `app/layout.tsx` by the scaffold — do not change them.
 
 **Files:**
-- Modify: `tailwind.config.ts`
 - Modify: `app/globals.css`
 
-- [ ] **Step 1: Extend Tailwind config with custom theme**
-
-Replace `tailwind.config.ts`:
-
-```typescript
-import type { Config } from 'tailwindcss'
-
-const config: Config = {
-  content: [
-    './pages/**/*.{js,ts,jsx,tsx,mdx}',
-    './components/**/*.{js,ts,jsx,tsx,mdx}',
-    './app/**/*.{js,ts,jsx,tsx,mdx}',
-  ],
-  theme: {
-    extend: {
-      colors: {
-        background: '#0a0a0a',
-        surface: '#111111',
-        border: '#1f1f1f',
-        'text-primary': '#e8e8e8',
-        'text-secondary': '#888888',
-        accent: '#3b82f6',
-        'accent-hover': '#2563eb',
-      },
-      fontFamily: {
-        sans: ['var(--font-inter)', 'sans-serif'],
-        mono: ['var(--font-mono)', 'monospace'],
-      },
-    },
-  },
-  plugins: [],
-}
-
-export default config
-```
-
-- [ ] **Step 2: Write global styles in `app/globals.css`**
+- [ ] **Step 1: Replace `app/globals.css` with the v4 theme**
 
 ```css
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
-@layer base {
-  body {
-    @apply bg-background text-text-primary antialiased;
-  }
+@theme {
+  /* Colors */
+  --color-background: #0a0a0a;
+  --color-surface: #111111;
+  --color-border: #1f1f1f;
+  --color-text-primary: #e8e8e8;
+  --color-text-secondary: #888888;
+  --color-accent: #3b82f6;
+  --color-accent-hover: #2563eb;
 
-  ::selection {
-    @apply bg-accent text-white;
-  }
-
-  ::-webkit-scrollbar {
-    @apply w-1.5;
-  }
-
-  ::-webkit-scrollbar-track {
-    @apply bg-background;
-  }
-
-  ::-webkit-scrollbar-thumb {
-    @apply bg-border rounded-full;
-  }
+  /* Fonts — variables provided by next/font in layout.tsx */
+  --font-sans: var(--font-geist-sans), sans-serif;
+  --font-mono: var(--font-geist-mono), monospace;
 }
 
-@layer utilities {
-  .hero-gradient {
-    background: linear-gradient(135deg, #0a0a0a 0%, #0d1526 50%, #0a0a0a 100%);
-    background-size: 200% 200%;
-    animation: gradient-shift 10s ease infinite;
-  }
+/* Base styles */
+body {
+  background-color: var(--color-background);
+  color: var(--color-text-primary);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background-color: var(--color-accent);
+  color: #ffffff;
+}
+
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--color-background); }
+::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: 9999px; }
+
+/* Hero gradient animation */
+.hero-gradient {
+  background: linear-gradient(135deg, #0a0a0a 0%, #0d1526 50%, #0a0a0a 100%);
+  background-size: 200% 200%;
+  animation: gradient-shift 10s ease infinite;
 }
 
 @keyframes gradient-shift {
@@ -219,11 +193,21 @@ export default config
 }
 ```
 
+In Tailwind v4, `--color-background` in `@theme` makes `bg-background`, `text-background`, etc. available as utility classes. Same for all other custom colors.
+
+- [ ] **Step 2: Verify Tailwind classes resolve**
+
+```bash
+npm run build 2>&1 | head -20
+```
+
+Expected: Build succeeds (or only type errors, not Tailwind errors).
+
 - [ ] **Step 3: Commit**
 
 ```bash
-git add tailwind.config.ts app/globals.css
-git commit -m "feat: configure Tailwind theme with dark palette and gradient animation"
+git add app/globals.css
+git commit -m "feat: configure Tailwind v4 theme with dark palette and gradient animation"
 ```
 
 ---
@@ -629,15 +613,16 @@ export default function Nav() {
 
 - [ ] **Step 4: Update `app/layout.tsx`**
 
+> Keep the existing Geist font setup from the scaffold — only update metadata and add Nav. The `--font-geist-sans` and `--font-geist-mono` CSS variables are already wired to `@theme` in `globals.css`.
+
 ```tsx
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
-import { JetBrains_Mono } from 'next/font/google'
+import { Geist, Geist_Mono } from 'next/font/google'
 import Nav from '@/components/Nav'
 import './globals.css'
 
-const inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
-const mono = JetBrains_Mono({ subsets: ['latin'], variable: '--font-mono' })
+const geistSans = Geist({ variable: '--font-geist-sans', subsets: ['latin'] })
+const geistMono = Geist_Mono({ variable: '--font-geist-mono', subsets: ['latin'] })
 
 export const metadata: Metadata = {
   title: 'Henrique Guazzelli — AI Engineer',
@@ -646,7 +631,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${inter.variable} ${mono.variable}`}>
+    <html lang="en" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
       <body className="min-h-screen bg-background font-sans">
         <Nav />
         <main className="pt-16">{children}</main>
@@ -1197,26 +1182,20 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
 npm install @tailwindcss/typography
 ```
 
-- [ ] **Step 3: Add typography plugin to `tailwind.config.ts`**
+- [ ] **Step 3: Add typography plugin to `app/globals.css`**
 
-In `tailwind.config.ts`, update `plugins`:
+> In Tailwind v4 there is no `tailwind.config.ts`. Plugins are registered in CSS.
 
-```typescript
-plugins: [require('@tailwindcss/typography')],
+Add this line near the top of `app/globals.css`, after `@import "tailwindcss"`:
+
+```css
+@plugin "@tailwindcss/typography";
 ```
 
-- [ ] **Step 4: Start dev server and verify the blog post page renders**
+- [ ] **Step 4: Commit**
 
 ```bash
-npm run dev
-```
-
-Navigate to `http://localhost:3000/blog` — should show empty state or posts if Notion env vars are set.
-
-- [ ] **Step 5: Commit**
-
-```bash
-git add app/blog/[slug]/page.tsx tailwind.config.ts package.json package-lock.json
+git add app/blog/[slug]/page.tsx app/globals.css package.json package-lock.json
 git commit -m "feat: add blog post page with Notion content and Markdown rendering"
 ```
 
@@ -1394,15 +1373,23 @@ NOTION_DATABASE_ID=
 NEXT_PUBLIC_CAL_LINK=
 ```
 
-- [ ] **Step 7: Add `.env.local` to `.gitignore`**
+- [ ] **Step 7: Fix `.gitignore` so `.env.example` can be committed**
 
-Verify `.gitignore` contains `.env.local` (Next.js adds this automatically). Run:
+The scaffold's `.gitignore` uses `.env*` which blocks `.env.example`. Fix it:
 
-```bash
-grep ".env.local" .gitignore
+Open `.gitignore` and replace the line `.env*` with:
+```
+.env
+.env.local
+.env.*.local
 ```
 
-Expected: `.env.local` is listed.
+Then verify `.env.local` is still excluded and `.env.example` is now trackable:
+
+```bash
+git check-ignore -v .env.local    # should print the ignore rule
+git check-ignore -v .env.example  # should print nothing (not ignored)
+```
 
 #### Part D: GitHub + Vercel
 
