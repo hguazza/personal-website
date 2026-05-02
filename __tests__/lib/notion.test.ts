@@ -37,10 +37,6 @@ describe('getPosts', () => {
 
   it('returns mapped posts from Notion', async () => {
     mockQuery.mockResolvedValue({ results: [mockPage] })
-    ;(isFullPage as unknown as jest.Mock).mockReturnValue(true)
-    ;(Client as jest.Mock).mockImplementation(() => ({
-      databases: { query: mockQuery },
-    }))
     const posts = await getPosts()
     expect(posts).toHaveLength(1)
     expect(posts[0]).toEqual({
@@ -55,9 +51,6 @@ describe('getPosts', () => {
 
   it('returns empty array when no published posts', async () => {
     mockQuery.mockResolvedValue({ results: [] })
-    ;(Client as jest.Mock).mockImplementation(() => ({
-      databases: { query: mockQuery },
-    }))
     const posts = await getPosts()
     expect(posts).toHaveLength(0)
   })
@@ -68,27 +61,12 @@ describe('getPost', () => {
 
   it('returns null when post not found', async () => {
     mockQuery.mockResolvedValue({ results: [] })
-    ;(Client as jest.Mock).mockImplementation(() => ({
-      databases: { query: mockQuery },
-    }))
-    ;(NotionToMarkdown as jest.Mock).mockImplementation(() => ({
-      pageToMarkdown: mockPageToMarkdown,
-      toMarkdownString: mockToMarkdownString,
-    }))
     const result = await getPost('missing-slug')
     expect(result).toBeNull()
   })
 
   it('returns post with markdown content and queries by slug', async () => {
     mockQuery.mockResolvedValue({ results: [mockPage] })
-    ;(isFullPage as unknown as jest.Mock).mockReturnValue(true)
-    ;(Client as jest.Mock).mockImplementation(() => ({
-      databases: { query: mockQuery },
-    }))
-    ;(NotionToMarkdown as jest.Mock).mockImplementation(() => ({
-      pageToMarkdown: mockPageToMarkdown,
-      toMarkdownString: mockToMarkdownString,
-    }))
     mockPageToMarkdown.mockResolvedValue([])
     mockToMarkdownString.mockReturnValue({ parent: '# Test content' })
     const result = await getPost('test-post')
