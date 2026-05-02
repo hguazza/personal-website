@@ -38,6 +38,7 @@ export default function Nav() {
           className="flex flex-col gap-1.5 md:hidden"
           onClick={() => setOpen(prev => !prev)}
           aria-label="Toggle menu"
+          aria-expanded={open}
         >
           <span className={`h-0.5 w-6 bg-text-primary transition-transform ${open ? 'translate-y-2 rotate-45' : ''}`} />
           <span className={`h-0.5 w-6 bg-text-primary transition-opacity ${open ? 'opacity-0' : ''}`} />
