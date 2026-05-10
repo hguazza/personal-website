@@ -33,9 +33,12 @@ export default function ResourceTabs({ papers, repos, videos, articles }: Props)
   const [active, setActive] = useState<Tab>(initial)
 
   useEffect(() => {
-    const params = new URLSearchParams(searchParams.toString())
-    params.set('tab', active)
-    router.replace(`${pathname}?${params.toString()}`)
+    const currentTab = searchParams.get('tab') as Tab | null
+    if (currentTab !== active) {
+      const params = new URLSearchParams(searchParams.toString())
+      params.set('tab', active)
+      router.replace(`${pathname}?${params.toString()}`)
+    }
   }, [active, pathname, router, searchParams])
 
   const counts: Record<Tab, number> = {
