@@ -18,6 +18,7 @@ describe('Nav', () => {
     render(<Nav />)
     expect(screen.getByRole('link', { name: /projects/i })).toHaveAttribute('href', '/projects')
     expect(screen.getByRole('link', { name: /blog/i })).toHaveAttribute('href', '/blog')
+    expect(screen.getByRole('link', { name: /resources/i })).toHaveAttribute('href', '/resources')
     expect(screen.getByRole('link', { name: /contact/i })).toHaveAttribute('href', '/contact')
   })
 })
