@@ -17,6 +17,8 @@ const TABS: { id: Tab; label: string }[] = [
   { id: 'articles', label: 'Articles' },
 ]
 
+const TAB_IDS = TABS.map(t => t.id)
+
 interface Props {
   papers: Paper[]
   repos: Repo[]
@@ -29,12 +31,14 @@ export default function ResourceTabs({ papers, repos, videos, articles }: Props)
   const router = useRouter()
   const pathname = usePathname()
 
-  const initial = (searchParams.get('tab') as Tab) ?? 'papers'
+  const raw = searchParams.get('tab')
+  const initial: Tab = (raw && TAB_IDS.includes(raw as Tab)) ? (raw as Tab) : 'papers'
   const [active, setActive] = useState<Tab>(initial)
 
   useEffect(() => {
-    const currentTab = searchParams.get('tab') as Tab | null
-    if (currentTab !== active) {
+    const currentTab = searchParams.get('tab')
+    const isValidTab = currentTab && TAB_IDS.includes(currentTab as Tab)
+    if (!isValidTab || currentTab !== active) {
       const params = new URLSearchParams(searchParams.toString())
       params.set('tab', active)
       router.replace(`${pathname}?${params.toString()}`)
@@ -78,28 +82,28 @@ export default function ResourceTabs({ papers, repos, videos, articles }: Props)
         papers.length === 0
           ? <p className="text-text-secondary">Nothing here yet. Check back soon.</p>
           : <div className="grid gap-6 md:grid-cols-2">
-              {papers.map((p, i) => <PaperCard key={i} paper={p} />)}
+              {papers.map(p => <PaperCard key={p.title} paper={p} />)}
             </div>
       )}
       {active === 'repos' && (
         repos.length === 0
           ? <p className="text-text-secondary">Nothing here yet. Check back soon.</p>
           : <div className="grid gap-6 md:grid-cols-2">
-              {repos.map((r, i) => <RepoCard key={i} repo={r} />)}
+              {repos.map(r => <RepoCard key={r.title} repo={r} />)}
             </div>
       )}
       {active === 'videos' && (
         videos.length === 0
           ? <p className="text-text-secondary">Nothing here yet. Check back soon.</p>
           : <div className="grid gap-6 md:grid-cols-2">
-              {videos.map((v, i) => <VideoCard key={i} video={v} />)}
+              {videos.map(v => <VideoCard key={v.title} video={v} />)}
             </div>
       )}
       {active === 'articles' && (
         articles.length === 0
           ? <p className="text-text-secondary">Nothing here yet. Check back soon.</p>
           : <div className="grid gap-6 md:grid-cols-2">
-              {articles.map((a, i) => <ArticleCard key={i} article={a} />)}
+              {articles.map(a => <ArticleCard key={a.title} article={a} />)}
             </div>
       )}
     </div>

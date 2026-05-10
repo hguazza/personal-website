@@ -14,7 +14,7 @@ export default function ResourcesPage() {
       <p className="mb-12 text-text-secondary">
         Papers, repos, videos, and articles that shaped how I think and build.
       </p>
-      <Suspense>
+      <Suspense fallback={<div className="h-96" />}>
         <ResourceTabs
           papers={papers}
           repos={repos}
